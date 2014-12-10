@@ -83,9 +83,10 @@ def compare(list, jj, prefix, truth):
 def make_plot(fn, prefix):
     hdulist = fits.open(fn)
     vec, time = _get_section_and_time(hdulist, DEFAULT_HW)
-    print vec
+    vec -= np.median(vec)
+    mad = np.median(np.abs(vec[:-3, :-5] - vec[3:, 5:]))
     plt.clf()
-    plt.imshow(vec, cmap="gray", interpolation="nearest")
+    plt.imshow(vec, cmap="gray", interpolation="nearest", vmin=-5.*mad, vmax=10.*mad)
     plt.title(time)
     plt.savefig(prefix + ".png")
     return None
