@@ -36,12 +36,12 @@ def _get_time(str):
     return datetime.strptime(str, "%Y-%m-%dT%H:%M:%S")
 
 def _get_section_and_time(hdulist, hw):
-    x1 = hdulist1[0].header["NAXIS1"] / 2 - hw
+    x1 = hdulist[0].header["NAXIS1"] / 2 - hw
     x2 = x1 + hw + hw
-    y1 = hdulist1[0].header["NAXIS2"] / 2 - hw
+    y1 = hdulist[0].header["NAXIS2"] / 2 - hw
     y2 = y1 + hw + hw
-    vec = _normalize(hdulist1[0].data[y1:y2, x1:x2])
-    time = _get_time(hdulist1[0].header["DATE-OBS"])
+    vec = _normalize(hdulist[0].data[y1:y2, x1:x2])
+    time = _get_time(hdulist[0].header["DATE-OBS"])
     return vec, time
 
 def cross_correlate_files(fn1, fn2, hw=DEFAULT_HW):
@@ -54,7 +54,7 @@ def cross_correlate_files(fn1, fn2, hw=DEFAULT_HW):
     vec1, t1 = _get_section_and_time(hdulist1, hw)
     vec2, t2 = _get_section_and_time(hdulist2, hw)
     cc = np.sum(vec1 * vec2)
-    dt = _get_time(t2) - _get_time(t1)
+    dt = t2 - t1
     return dt, cc
 
 def compare(list, jj, prefix, truth):
@@ -82,10 +82,12 @@ def compare(list, jj, prefix, truth):
 
 def make_plot(fn, prefix):
     hdulist = fits.open(fn)
-    time, vec = _get_section_and_time(hdulist, DEFAULT_HW)
+    vec, time = _get_section_and_time(hdulist, DEFAULT_HW)
+    print vec
     plt.clf()
-    plt.imshow(vec, cmap="grey", interpolate="nearest")
-    plt.savefig(prefix + ".jpg")
+    plt.imshow(vec, cmap="gray", interpolation="nearest")
+    plt.title(time)
+    plt.savefig(prefix + ".png")
     return None
 
 if __name__ == "__main__":
